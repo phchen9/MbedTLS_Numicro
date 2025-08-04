@@ -1,0 +1,6 @@
+[submodule "lib/mbedtlslib/mbedtls"]
+	path = lib/mbedtlslib/mbedtls
+	url = https://github.com/Mbed-TLS/mbedtls.git
+[submodule "lib/m2354lib/bsp"]
+	path = lib/m2354lib/bsp
+	url = https://github.com/OpenNuvoton/M2354BSP.git
