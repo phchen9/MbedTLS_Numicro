@@ -1,0 +1,76 @@
+From 8b2365ae824643b6b8776699a8fcedc7f1f5e1ae Mon Sep 17 00:00:00 2001
+From: phchen9 <PHCHEN9@nuvoton.com>
+Date: Tue, 5 Aug 2025 10:02:18 +0800
+Subject: [PATCH] Fix memory leak
+
+---
+ Library/CryptoAccelerator/ecdh_alt.c  | 12 ++++++++++++
+ Library/CryptoAccelerator/ecdsa_alt.c | 22 ++++++++++++++++++++++
+ 2 files changed, 34 insertions(+)
+
+diff --git a/Library/CryptoAccelerator/ecdh_alt.c b/Library/CryptoAccelerator/ecdh_alt.c
+index fac6142e..b91872bf 100644
+--- a/Library/CryptoAccelerator/ecdh_alt.c
++++ b/Library/CryptoAccelerator/ecdh_alt.c
+@@ -342,6 +342,18 @@ int32_t  ECC_ComputeShared(mbedtls_ecp_group* grp, mbedtls_mpi* z, const mbedtls
+     mbedtls_mpi_grow(z, len);
+     memcpy(z->MBEDTLS_PRIVATE(p), (void*)crpt->ECC_X1, len);
+ 
++    if (grp->id == MBEDTLS_ECP_DP_CURVE25519)
++    {
++        mbedtls_mpi_free(&grp->A);
++        mbedtls_mpi_free(&grp->B);
++        mbedtls_mpi_free(&grp->P);
++        mbedtls_mpi_free(&grp->N);
++    }
++    else
++    {
++        mbedtls_mpi_free(&grp->A);
++    }
++
+     return 0;
+ }
+ 
+diff --git a/Library/CryptoAccelerator/ecdsa_alt.c b/Library/CryptoAccelerator/ecdsa_alt.c
+index 3554f65a..c788f84b 100644
+--- a/Library/CryptoAccelerator/ecdsa_alt.c
++++ b/Library/CryptoAccelerator/ecdsa_alt.c
+@@ -444,6 +444,17 @@ int32_t  ECC_Sign(mbedtls_ecp_group* grp, mbedtls_mpi* r, mbedtls_mpi* s,
+ 
+     mbedtls_mpi_free(pk);
+ 
++    if (grp->id == MBEDTLS_ECP_DP_CURVE25519)
++    {
++        mbedtls_mpi_free(&grp->A);
++        mbedtls_mpi_free(&grp->B);
++        mbedtls_mpi_free(&grp->P);
++        mbedtls_mpi_free(&grp->N);
++    }
++    else
++    {
++        mbedtls_mpi_free(&grp->A);
++    }
+ 
+     return 0;
+ }
+@@ -739,6 +750,17 @@ int  ECC_Verify(mbedtls_ecp_group * grp,
+         return MBEDTLS_ERR_ECP_VERIFY_FAILED;
+     }
+ 
++    if (grp->id == MBEDTLS_ECP_DP_CURVE25519)
++    {
++        mbedtls_mpi_free(&grp->A);
++        mbedtls_mpi_free(&grp->B);
++        mbedtls_mpi_free(&grp->P);
++        mbedtls_mpi_free(&grp->N);
++    }
++    else
++    {
++        mbedtls_mpi_free(&grp->A);
++    }
+ 
+     return 0;
+ }
+-- 
+2.45.1.windows.1
+
